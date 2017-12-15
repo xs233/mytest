@@ -1,0 +1,88 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+'spark python interface'
+
+__author__ = 'xusheng'
+
+from pyspark import SparkConf, SparkContext
+import sys,DataProcessFun,pickle,redis
+
+args = sys.argv
+if len(args) == 3:
+	print('%s' % args[1])
+	print('%s' % args[2])
+else:
+	sys.exit('args error!')
+#conf = SparkConf().setMaster("spark://iZ28ur81pw2Z:7077").setAppName("My App")
+conf = SparkConf()
+sc = SparkContext(conf = conf)
+
+try:
+	#sc.addPyFile("/home/spark/python/Compass1.0/DataProcessFun.py")
+	#sc.addFile("/home/spark/python/Compass1.0/libfeatureProcess.so")
+	es_config = pickle.loads(args[1])
+	conf = {"es.net.http.auth.user":"elastic",
+			"es.net.http.auth.pass":"changeme",
+			"es.resource" : "target/person",
+			"es.nodes":"10.46.215.19",
+			"es.query":'%s' % args[2]}
+	print('------------------------------------------------------------------')
+	print(conf)
+	conf = {"es.net.http.auth.user":es_config['es_user'],
+			"es.net.http.auth.pass":es_config['es_pass'],
+			"es.resource" : es_config['es_resource'],
+			"es.nodes":es_config['es_nodes'],
+			"es.query":'%s' % args[2]}
+	print(conf)
+	rdd = sc.newAPIHadoopRDD("org.elasticsearch.hadoop.mr.EsInputFormat",
+							 "org.apache.hadoop.io.NullWritable",
+							 "org.elasticsearch.hadoop.mr.LinkedMapWritable",
+							  conf=conf)
+	print('count = %d' %rdd.count())
+	#data = rdd.map(DataProcessFun.change_type).collect()
+	rdd = rdd.filter(DataProcessFun.calc)
+	print('count = %d' %rdd.count())
+
+	'''
+	r = redis.StrictRedis(host='localhost', port=6379, db=0)
+	for i in data:
+		if not r.zadd('res',i[1]['value'],i[0]):
+			sc.stop()
+			sys.exit(1)
+	'''
+
+except Exception, e:
+	print e
+	sc.stop()
+	sys.exit(2)
+
+'''	
+try:
+	sc.addPyFile("/home/spark/python/Compass1.0/DataProcessFun.py")
+	conf = {"es.net.http.auth.user":"elastic",
+	"es.net.http.auth.pass":"changeme",
+	"es.resource" : "target/vericle",
+	"es.nodes":"10.46.215.19",
+	"es.query":'%s' % args[1]}
+
+	rdd = sc.newAPIHadoopRDD("org.elasticsearch.hadoop.mr.EsInputFormat",
+				     "org.apache.hadoop.io.NullWritable",
+				     "org.elasticsearch.hadoop.mr.LinkedMapWritable",
+				     conf=conf)
+
+	print(rdd.count())
+	#print os.getcwd()
+	
+	data = rdd.map(DataProcessFun.change_type).collect()
+	r = redis.StrictRedis(host='localhost', port=6379, db=0)
+	for i in data:
+		if not r.zadd('device',i[1]['value'],i[0]):
+			sc.stop()
+			sys.exit(3)
+	
+except Exception as e:
+	sc.stop()
+	sys.exit(2)
+'''
+sc.stop()

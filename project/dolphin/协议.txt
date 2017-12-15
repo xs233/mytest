@@ -1,0 +1,25 @@
+
+driver 分配任务到executor时的协议:
+
+{"task":"mongodb",
+ "info":[
+         [{"col_name1":{"beginNum":11,"endNum":22}}],
+         [{"col_name2":{"beginNum":11,"endNum":22}}]
+        ],
+ "cores":2
+}
+ 
+executor 返回结果到 driver中的协议：
+
+{"task":"mongodb",
+ "executor":"task_md5",
+ "result":[{"col_name":[1,2,3]}]
+}
+
+driver 返回结果到 client 中的协议：
+
+{"task":"mongodb",
+ "code":0,                               // 0表示成功，非0表示失败。
+ "error_info":"error",                   // 失败时才有该字段
+ "result":[{"col_name":[1,2,3]}]          // 成功才有该字段
+}
