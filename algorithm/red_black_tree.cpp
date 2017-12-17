@@ -130,6 +130,20 @@ void rb_insert_fixup(red_black_tree* tree, node* balance_node) {
     tree->root->color = BLACK;
 }
 
+node* rb_search(red_black_tree* tree, int num) {
+	node* iterator_node = tree->root;
+	while (iterator_node != tree->nil) {
+		if (num == iterator_node->num) {
+			break;
+		} else if (num > iterator_node->num) {
+			iterator_node = iterator_node->right_node;
+		} else {
+			iterator_node = iterator_node->left_node;
+		}
+	}
+	return iterator_node;
+}
+
 void rb_insert(red_black_tree* tree, node* new_node) {
     node* iterator_node = tree->root;
     node* last_iterator_node = tree->nil;
@@ -169,15 +183,70 @@ void replace_useless_node(red_black_tree* tree, node* useless_node, node* new_no
 		}
 	}
 	
-	if (new_node != tree->nil) {
-		new_node->parent_node = useless_node->parent_node;
-	}
+	new_node->parent_node = useless_node->parent_node;
+}
+
+void rb_delete_fixup(red_black_tree* tree, node* balance_node) {
+    while (balance_node != tree->root && balance_node->color == BLACK) {
+        if (balance_node == balance_node->parent_node->left_node) {
+            node* brother_node = balance_node->parent_node->right_node;
+            if (brother_node->color == RED) {
+                brother_node->color = BLACK;
+                brother_node->parent_node->color = RED;
+                left_rotate(tree, brother_node->parent_node);
+                brother_node = balance_node->parent_node->right_node;
+            }
+            if (brother_node->left_node->color == BLACK && brother_node->right_node->color == BLACK) {
+                brother_node->color = RED;
+                balance_node = balance_node->parent_node;
+            } else if (brother_node->right_node->color == BLACK) {
+                brother_node->left_node->color = BLACK;
+                brother_node->color = RED;
+                right_rotate(tree, brother_node);
+                brother_node = balance_node->parent_node->right_node;
+            } else {
+                brother_node->color = balance_node->parent_node->color;
+                balance_node->parent_node->color = BLACK;
+                brother_node->right_node->color = BLACK;
+                left_rotate(tree, balance_node->parent_node);
+                balance_node = tree->root;
+            }
+        } else {
+            node* brother_node = balance_node->parent_node->left_node;
+            if (brother_node->color == RED) {
+                brother_node->color = BLACK;
+                brother_node->parent_node->color = RED;
+                right_rotate(tree, brother_node->parent_node);
+                brother_node = balance_node->parent_node->left_node;
+            }
+            if (brother_node->left_node->color == BLACK && brother_node->right_node->color == BLACK) {
+                brother_node->color = RED;
+                balance_node = balance_node->parent_node;
+            } else if (brother_node->left_node->color == BLACK) {
+                brother_node->right_node->color = BLACK;
+                brother_node->color = RED;
+                left_rotate(tree, brother_node);
+                brother_node = balance_node->parent_node->left_node;
+            } else {
+                brother_node->color = balance_node->parent_node->color;
+                balance_node->parent_node->color = BLACK;
+                brother_node->left_node->color = BLACK;
+                right_rotate(tree, balance_node->parent_node);
+                balance_node = tree->root;
+            }
+        }
+    }
+    balance_node->color = BLACK;
 }
 
 void rb_delete(red_black_tree* tree, node* useless_node) {
+    if (!tree || tree->root == tree->nil || !useless_node || useless_node == tree->nil) {
+        return;
+    }
+
 	node* replace_node = nullptr;
 	COLOR original_color = useless_node->color;
-	if (useless_node != tree->nil && useless_node) {
+	if (useless_node != tree->nil) {
 		if (useless_node->left_node == tree->nil) {
 			// No left node
 			replace_node = useless_node->right_node;
@@ -197,6 +266,9 @@ void rb_delete(red_black_tree* tree, node* useless_node) {
 		}
 	}
 
+    if (original_color == BLACK) {
+        rb_delete_fixup(tree, replace_node);
+    }
 }
 
 int main() {
@@ -212,5 +284,15 @@ int main() {
         rb_insert(tree, new_node);
     }
     inorder_tree_walk(tree->root, tree->nil);
+    while (tree->root != tree->nil) {
+        int i = std::rand() % 100;
+		node* useless_node = rb_search(tree, i);
+		if (useless_node != tree->nil) {
+			std::cout << "Delete the the number of " << i << '\n';
+			rb_delete(tree, useless_node);
+		} else {
+			std::cout << "The tree don't contain the number of " << i << '\n';
+		}
+    }
     return 0;
 }

@@ -22,11 +22,9 @@ node* tree_search(node* tree, int num) {
 	while (iterator_node) {
 		if (num == iterator_node->num) {
 			break;
-		}
-		else if (num > iterator_node->num) {
+		} else if (num > iterator_node->num) {
 			iterator_node = iterator_node->right_node;
-		}
-		else {
+		} else {
 			iterator_node = iterator_node->left_node;
 		}
 	}
