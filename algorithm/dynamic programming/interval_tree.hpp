@@ -41,39 +41,39 @@ public:
         insert_fixup(new_node);
     };
 
-    void delete(node* useless_node) {
-        if (root_ == nil_ || !useless_node || useless_node == nil_) {
-            return;
-        }
+    //void remove(node* useless_node) {
+    //    if (root_ == nil_ || !useless_node || useless_node == nil_) {
+    //        return;
+    //    }
 
-        node* replace_node = nullptr;
-        COLOR original_color = useless_node->color;
-        if (useless_node != nil_) {
-            if (useless_node->left_node == nil_) {
-                // No left node
-                replace_node = useless_node->right_node;
-                replace_useless_node(useless_node, replace_node);
-            } else if (useless_node->right_node == nil_) {
-                // No right node
-                replace_node = useless_node->left_node;
-                replace_useless_node(useless_node, replace_node);
-            } else {
-                // There are both left node and right node
-                node* minimum_node = minimum(useless_node->right_node, nil_);
-                replace_node = minimum_node->right_node;
-                original_color = minimum_node->color;
-                replace_useless_node(minimum_node, replace_node);
-                useless_node->num = minimum_node->num;
-                useless_node = minimum_node;
-            }
-        }
+    //    node* replace_node = nullptr;
+    //    COLOR original_color = useless_node->color;
+    //    if (useless_node != nil_) {
+    //        if (useless_node->left_node == nil_) {
+    //            // No left node
+    //            replace_node = useless_node->right_node;
+    //            replace_useless_node(useless_node, replace_node);
+    //        } else if (useless_node->right_node == nil_) {
+    //            // No right node
+    //            replace_node = useless_node->left_node;
+    //            replace_useless_node(useless_node, replace_node);
+    //        } else {
+    //            // There are both left node and right node
+    //            node* minimum_node = minimum(useless_node->right_node, nil_);
+    //            replace_node = minimum_node->right_node;
+    //            original_color = minimum_node->color;
+    //            replace_useless_node(minimum_node, replace_node);
+    //            useless_node->num = minimum_node->num;
+    //            useless_node = minimum_node;
+    //        }
+    //    }
 
-        if (original_color == BLACK) {
-            delete_fixup(replace_node);
-        }
-    };
+    //    if (original_color == BLACK) {
+    //        delete_fixup(replace_node);
+    //    }
+    //};
 
-    T2& operator[](T1 low_endpoint, T1 high_endpoint) {
+    T2& get(T1 low_endpoint, T1 high_endpoint) {
         if (low_endpoint == high_endpoint) {
             return nil_->value;
         }
@@ -84,9 +84,9 @@ public:
                 if (high_endpoint == iterator_node->high_endpoint) {
                     break;
                 } else {
-                    iterator_node = iterator_node->right_node;
+                    iterator_node = iterator_node->left_node;
                 }
-            } else if (num < iterator_node->num) {
+            } else if (low_endpoint < iterator_node->low_endpoint) {
                 iterator_node = iterator_node->left_node;
             } else {
                 iterator_node = iterator_node->right_node;
@@ -96,6 +96,17 @@ public:
     };
 
 private:
+	enum COLOR { BLACK, RED };
+	struct node {
+		T1 low_endpoint;
+		T1 high_endpoint;
+		T2 value;
+		COLOR color;
+		node* left_node;
+		node* right_node;
+		node* parent_node;
+	};
+
     void left_rotate(node* x) {
         node* y = x->right_node;
         x->right_node = y->left_node;
@@ -254,17 +265,6 @@ private:
             }
         }
         balance_node->color = BLACK;
-    };
-
-    enum COLOR {BLACK, RED};
-    struct node {
-        T1 low_endpoint;
-        T1 high_endpoint;
-        T2 value;
-        COLOR color;
-        node* left_node;
-        node* right_node;
-        node* parent_node;
     };
 
     node* root_;
