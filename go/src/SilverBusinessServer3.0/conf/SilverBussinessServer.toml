@@ -1,0 +1,40 @@
+debug = true
+testing = true
+
+[logger]
+# FINEST ,FINE ,DEBUG ,TRACE ,INFO ,WARNING, ERROR, CRITICAL -> 0 ~ 7
+level = 2
+
+[logger.console]
+format = "[%T %D] [%L] (%S) %M"
+
+[logger.file]
+format = "[%T %D] [%L] (%S) %M"
+path = "./log"
+size = 1048576
+lines = 10000
+maxbackup = 10
+
+[httpserver]
+port = "8081"
+
+[httpserver.secretcookie]
+secretkey = "impower inside, we are the best. oh yeah!"
+maxdays = 30
+
+[httpserver.module.v1]
+api = true
+
+[mysql]
+SilverBusinessServerb_dsn = "impower:impower2017@tcp(192.168.0.182:3306)/impowerdb?charset=utf8"
+
+[liveserver]
+api = true
+
+[swordserver]
+host="192.168.0.182"
+port="6000"
+
+[echo]
+host="192.168.0.182"
+port="9000"

@@ -1,0 +1,35 @@
+debug = true
+testing = true
+
+[logger]
+# FINEST ,FINE ,DEBUG ,TRACE ,INFO ,WARNING, ERROR, CRITICAL -> 0 ~ 7
+level = 2
+
+[logger.console]
+format = "[%T %D] [%L] (%S) %M"
+
+[logger.file]
+format = "[%T %D] [%L] (%S) %M"
+path = "./log"
+size = 1048576
+lines = 10000
+maxbackup = 10
+
+[httpserver]
+port = "8080"
+
+[httpserver.secretcookie]
+secretkey = "impower inside, we are the best. oh yeah!"
+maxdays = 30
+
+[httpserver.module.v1]
+api = true
+
+[mysql]
+dsn = "impower:impower2017@tcp(127.0.0.1:3306)/licensedb?charset=utf8"
+
+[phoneverify]
+livetime = 3600
+apikey = "cf6905108b06464f106017c3efe12e52"
+tplid = "2"
+company = "银瀑技术有限公司"
