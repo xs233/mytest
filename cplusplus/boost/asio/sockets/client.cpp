@@ -2,11 +2,11 @@
 #include <array>
 #include <boost/asio.hpp>
 
-void test_socket() {
+void sync_client() {
     boost::asio::io_service io_service;
     boost::asio::ip::tcp::socket tcp_socket(io_service);
     boost::asio::ip::tcp::resolver resolver(io_service);
-    boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve("8.8.8.8", "daytime");
+    boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve("127.0.0.1", "daytime");
     try {
         boost::asio::connect(tcp_socket, endpoints);
         while (true) {
@@ -15,6 +15,7 @@ void test_socket() {
             size_t len = tcp_socket.read_some(boost::asio::buffer(buf), error);
             if (boost::asio::error::eof == error) {
                 std::cout << "eof" <<  '\n';
+                break;
             } else if (error) {
                 throw boost::system::system_error(error);
             }
@@ -28,6 +29,6 @@ void test_socket() {
 }
 
 int main() {
-    test_socket();
+    sync_client();
     return 0;
 }
