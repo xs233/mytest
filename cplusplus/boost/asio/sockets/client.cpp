@@ -25,7 +25,6 @@ void sync_client() {
     } catch (std::exception& e) {
         std::cout << e.what() << '\n';
     }
-    
 }
 
 int main() {
